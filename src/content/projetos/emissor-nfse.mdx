@@ -1,0 +1,95 @@
+---
+titulo: 'Emissor de NFS-e com assinatura digital'
+resumo: 'Emite a nota fiscal de serviço de cada boleto pago: monta a DPS, assina com certificado digital, envia ao Emissor Nacional, gera o DANFSe e manda tudo por e-mail ao cliente.'
+contexto: 'Estágio — Virtus Consultoria'
+periodo: '2026'
+papel: 'Projeto individual'
+stack: ['Python', 'FastAPI', 'XMLDSig', 'lxml', 'ReportLab', 'Docker']
+ordem: 5
+codigo: 'privado'
+capa: '/projetos/emissor-nfse/capa.jpg'
+links:
+  video: '/projetos/emissor-nfse/emissor-completo.mp4'
+---
+import Todo from '../../components/Todo.astro';
+import Pendente from '../../components/Pendente.astro';
+import Video from '../../components/Video.astro';
+import Figura from '../../components/Figura.astro';
+
+<Video
+  src="/projetos/emissor-nfse/emissor-completo.mp4"
+  poster="/projetos/emissor-nfse/emissor-completo.jpg"
+  legenda="Demonstração completa (55 s): 10 boletos pagos viram 9 notas autorizadas e 1 rejeição, e as notas chegam por e-mail"
+/>
+
+> **Sobre esta demonstração.** O emissor original fala com o Emissor Nacional de verdade, com o certificado da empresa. Aqui, tudo é simulado:
+> - a SEFIN, a API de NFS-e, é uma imitação que confere a assinatura e os dados de verdade;
+> - o gateway de cobranças tem 10 boletos fictícios;
+> - o certificado é autoassinado, gerado na primeira execução;
+> - os e-mails caem numa caixa de teste.
+>
+> Nenhuma nota tem valor fiscal.
+
+## Problema
+
+Todo boleto pago virava uma nota emitida à mão no portal da prefeitura: copiar os dados do cliente, conferir o valor, emitir, baixar o PDF e mandar por e-mail. Era trabalho repetitivo e fácil de errar.
+
+<Todo>Quantas notas por mês e quanto tempo isso tomava antes.</Todo>
+
+## Como funciona
+
+Para cada boleto pago, o emissor:
+
+1. **Monta a DPS** (a declaração que vira a NFS-e) em XML, com prestador, tomador, serviço e valores.
+2. **Assina** o grupo `infDPS` com XMLDSig enveloped (RSA-SHA256), usando o certificado digital do prestador.
+3. **Envia à SEFIN** compactado em gzip e base64, como a API nacional pede.
+4. **Trata a resposta:** se autorizada, guarda a chave de acesso de 50 dígitos e o XML da NFS-e. Se rejeitada, mostra o código e o motivo na linha da nota, e ela fica disponível para nova tentativa.
+5. **Gera o DANFSe** em PDF, com QR code, e **envia por e-mail** ao cliente com o PDF e o XML anexados.
+
+Cada etapa de cada nota aparece ao vivo na tela, transmitida em NDJSON.
+
+<Video
+  src="/projetos/emissor-nfse/emissao.mp4"
+  poster="/projetos/emissor-nfse/emissao.jpg"
+  legenda="Emissão: cada linha mostra a etapa atual. Um dos clientes tem CNPJ inválido de propósito e a SEFIN rejeita"
+/>
+
+## A assinatura protege de verdade
+
+A SEFIN simulada valida a nota como a real faria:
+- confere a assinatura com o certificado que vem no próprio XML;
+- exige que o certificado seja do prestador;
+- lê os dados **só do trecho assinado**;
+- valida os CNPJs e o valor;
+- recusa uma DPS que já foi processada.
+
+Testei os dois casos de fraude:
+- **Valor alterado depois de assinar:** mudar R$ 100,00 para R$ 1,00 depois da assinatura é recusado com `E0715: Assinatura digital inválida`.
+- **Mesma DPS enviada de novo:** é recusada com `E0014: Esta DPS já foi processada`.
+
+<Video
+  src="/projetos/emissor-nfse/resultado.mp4"
+  poster="/projetos/emissor-nfse/resultado.jpg"
+  legenda="Resultado e XML assinado: a DPS com o bloco Signature, certificado e valor da assinatura"
+/>
+
+<Figura src="/projetos/emissor-nfse/danfse.jpg" legenda="DANFSe gerado em PDF (demonstração, sem valor fiscal)" />
+
+<Video
+  src="/projetos/emissor-nfse/email.mp4"
+  poster="/projetos/emissor-nfse/email.jpg"
+  legenda="A nota chega ao cliente por e-mail, com o PDF e o XML anexados"
+/>
+
+## Na versão original
+
+O emissor real tem o que a demonstração simplifica:
+- **Layout oficial:** a DPS segue o layout nacional 1.01, já com o grupo IBS/CBS da Reforma Tributária.
+- **Validação XSD:** o XML é validado contra os esquemas oficiais antes do envio.
+- **Envio autenticado:** o envio usa mTLS com o certificado e-CNPJ.
+- **Boletos reais:** os boletos vêm da API da Asaas.
+- **Deploy:** roda sozinho ou dentro da [central de automações](/projetos/central-automacoes), como nesta demonstração.
+
+<Pendente titulo="Resultado">Notas emitidas por mês, tempo economizado e erros evitados.</Pendente>
+
+<Pendente titulo="O que aprendi">2–3 frases na sua voz: assinatura XML na prática, tratar rejeições de um órgão público sem perder o lote, guardar segredos (certificado, chaves) fora do código.</Pendente>

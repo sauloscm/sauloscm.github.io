@@ -1,0 +1,14 @@
+---
+// Imagem ou GIF com legenda. Sem `src`, mostra um espaço reservado só no dev.
+interface Props { src?: string; legenda: string }
+const { src, legenda } = Astro.props;
+const dev = import.meta.env.DEV;
+---
+{(src || dev) && <figure class="not-prose my-6">
+  {src ? (
+    <img src={src} alt={legenda} loading="lazy" class="w-full rounded-lg border border-zinc-200 dark:border-zinc-800" />
+  ) : (
+    <div class="grid aspect-video place-items-center rounded-lg border border-dashed border-zinc-300 text-sm text-zinc-400 dark:border-zinc-700">imagem pendente</div>
+  )}
+  <figcaption class="mt-2 text-center text-sm text-zinc-500">{legenda}</figcaption>
+</figure>}

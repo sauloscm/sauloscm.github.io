@@ -1,0 +1,32 @@
+---
+titulo: 'Neolis — triagem neonatal para o SUS-PB'
+resumo: 'Sistema web que acompanha o Teste do Pezinho do cadastro do recém-nascido até a liberação do laudo, com portal para os pais.'
+contexto: 'PET-Saúde Digital — UFPB / SUS-PB'
+periodo: '2025 – hoje'
+papel: 'Em equipe: portal dos pais, onboarding, segurança e monitoramento'
+stack: ['Python', 'Flask', 'PostgreSQL', 'SQLAlchemy', 'Docker', 'GitHub Actions']
+destaque: true
+ordem: 4
+codigo: 'privado'
+---
+import Todo from '../../components/Todo.astro';
+import Pendente from '../../components/Pendente.astro';
+import Figura from '../../components/Figura.astro';
+
+<Pendente titulo="Problema">Descrever o fluxo antigo da triagem neonatal na Paraíba (papel? planilhas?) e por que um sistema era necessário.</Pendente>
+
+## Solução
+
+Aplicação Flask organizada em módulos (pacientes, coletas, laudos, painel, administração, portal), com controle de acesso por perfil e log de auditoria. O banco é PostgreSQL (Neon), com migrações versionadas.
+
+## Minha contribuição
+
+- **Portal dos pais:** consulta e impressão do resultado do exame.
+- **Landing page** e **onboarding** com ambiente *sandbox* para treinar novos usuários sem mexer nos dados reais.
+- **Segurança:** expiração de sessão por inatividade, HTTPS obrigatório e cabeçalhos de segurança (CSP, HSTS) com Flask-Talisman.
+- **Monitoramento:** rota `/health` que também testa o banco, healthcheck no Docker e alertas com Uptime Kuma.
+- **Testes** em pytest, que rodam no CI (GitHub Actions) a cada push.
+
+<Figura legenda="Portal dos pais (dados fictícios)" />
+
+<Todo>Pedir autorização ao grupo antes de publicar capturas de tela. Usar só dados de demonstração (seed_db.py).</Todo>

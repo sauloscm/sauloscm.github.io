@@ -1,0 +1,14 @@
+---
+// Seção ainda sem texto: no `npm run dev` aparece com o título e o lembrete;
+// no site publicado some inteira, para não deixar um título vazio.
+import Todo from './Todo.astro';
+interface Props { titulo: string }
+const { titulo } = Astro.props;
+const dev = import.meta.env.DEV;
+---
+{dev && (
+  <>
+    <h2>{titulo}</h2>
+    <Todo><slot /></Todo>
+  </>
+)}

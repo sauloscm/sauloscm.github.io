@@ -1,0 +1,20 @@
+---
+// Vídeo com legenda. `auto` toca em loop sem som (para trechos curtos); sem ele, mostra os controles.
+interface Props { src: string; poster?: string; legenda: string; auto?: boolean }
+const { src, poster, legenda, auto = false } = Astro.props;
+---
+<figure class="not-prose my-6">
+  <video
+    src={src}
+    poster={poster}
+    class="w-full rounded-lg border border-zinc-200 bg-zinc-950 dark:border-zinc-800"
+    preload="metadata"
+    playsinline
+    controls={!auto}
+    autoplay={auto}
+    muted={auto}
+    loop={auto}
+    aria-label={legenda}
+  ></video>
+  <figcaption class="mt-2 text-center text-sm text-zinc-500">{legenda}</figcaption>
+</figure>

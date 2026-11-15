@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Tag from '../../components/Tag.astro';
+import { listarProjetos } from '../../projetos';
+
+export async function getStaticPaths() {
+  const projetos = await listarProjetos();
+  return projetos.map((p) => ({ params: { slug: p.id }, props: { projeto: p } }));
+}
+
+const { projeto } = Astro.props;
+const d = projeto.data;
+const { Content } = await render(projeto);
+---
+<Base titulo={d.titulo} descricao={d.resumo}>
+  <a href="/projetos" class="text-sm text-zinc-500 hover:text-accent">← Projetos</a>
+  <header class="mt-6 space-y-4 border-b border-zinc-200 pb-8 dark:border-zinc-800">
+    <p class="font-mono text-sm text-accent">{d.contexto} · {d.periodo}</p>
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{d.titulo}</h1>
+    <p class="text-lg text-zinc-600 dark:text-zinc-400">{d.resumo}</p>
+    <dl class="grid gap-4 pt-2 text-sm sm:grid-cols-3">
+      <div><dt class="text-zinc-500">Meu papel</dt><dd>{d.papel}</dd></div>
+      <div><dt class="text-zinc-500">Código</dt><dd>{d.codigo === 'publico' ? 'Público' : 'Privado (empresa / projeto)'}</dd></div>
+      <div class="flex flex-wrap gap-3">
+        {d.links.demo && <a class="text-accent hover:underline" href={d.links.demo}>Demo</a>}
+        {d.links.repo && <a class="text-accent hover:underline" href={d.links.repo}>Repositório</a>}
+        {d.links.video && <a class="text-accent hover:underline" href={d.links.video}>Vídeo</a>}
+      </div>
+    </dl>
+    <div class="flex flex-wrap gap-1.5">{d.stack.map((s) => <Tag>{s}</Tag>)}</div>
+  </header>
+  <article class="prose prose-zinc mt-8 max-w-none dark:prose-invert prose-a:text-accent prose-pre:bg-zinc-900 prose-code:before:content-none prose-code:after:content-none prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1 prose-code:font-normal dark:prose-code:bg-zinc-800">
+    <Content />
+  </article>
+</Base>

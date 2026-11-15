@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.env
+
+# Código das demos fica fora do repositório do site (só os vídeos vão em public/).
+demos/

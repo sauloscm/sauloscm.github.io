@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { SITE } from '../site';
+import { listarProjetos } from '../projetos';
+
+const destaques = (await listarProjetos()).filter((p) => p.data.destaque);
+---
+<Base>
+  <section class="space-y-5 py-10">
+    <p class="font-mono text-sm text-accent">{SITE.local} · disponível para estágio remoto</p>
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">{SITE.frase}</h1>
+    <p class="max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">{SITE.descricao}</p>
+    <div class="flex flex-wrap gap-3 pt-2">
+      <a href="/projetos" class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90">Ver projetos</a>
+      <a href={SITE.curriculo} class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:border-accent dark:border-zinc-700">Currículo (PDF)</a>
+      <a href={SITE.github} class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:border-accent dark:border-zinc-700">GitHub</a>
+    </div>
+  </section>
+
+  <section class="space-y-6 py-8">
+    <div class="flex items-baseline justify-between">
+      <h2 class="text-2xl font-semibold">Projetos em destaque</h2>
+      <a href="/projetos" class="text-sm hover:text-accent">Todos →</a>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2">
+      {destaques.map((p) => <ProjectCard projeto={p} />)}
+    </div>
+  </section>
+</Base>

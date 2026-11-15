@@ -1,0 +1,124 @@
+---
+titulo: 'Sagaz: agente de dados com IA sobre um ERP contábil'
+resumo: 'Pergunte em português e receba a resposta com o SQL que a comprova. Um agente com Claude e MCP que consulta um data warehouse modelado em dbt, sem nunca escrever no banco.'
+contexto: 'Estágio — Virtus Consultoria'
+periodo: '2026'
+papel: 'Projeto individual: pipeline, modelagem, agente, servidor MCP e interface'
+stack: ['Python', 'Claude API', 'MCP', 'DuckDB', 'dbt', 'Flask', 'SQL']
+destaque: true
+ordem: 1
+codigo: 'privado'
+capa: '/projetos/warehouse-mcp/v2-capa.jpg'
+links:
+  video: '/projetos/warehouse-mcp/v2-sagaz-completo.mp4'
+---
+import Todo from '../../components/Todo.astro';
+import Pendente from '../../components/Pendente.astro';
+import Video from '../../components/Video.astro';
+
+<Video
+  src="/projetos/warehouse-mcp/v2-sagaz-completo.mp4"
+  poster="/projetos/warehouse-mcp/v2-sagaz-completo.jpg"
+  legenda="Demonstração completa (2 min): apresentação, pergunta com SQL, esclarecimento, memória, pergunta fora do escopo e painéis"
+/>
+
+> **Sobre esta demonstração.** O projeto original roda no escritório e usa dados reais de clientes. Por isso, reconstruí do zero uma versão com a mesma arquitetura e uma base **100% fictícia**: 40 empresas inventadas, com dois anos de notas, lançamentos e folha. Nenhum código, dado ou nome de cliente real aparece aqui.
+
+## Problema
+
+Em escritórios de contabilidade, os dados das empresas clientes ficam presos no backup do ERP. São centenas de tabelas com nomes abreviados e regras escondidas em códigos. Para responder "quem está perto do teto do Simples?" ou "quais clientes estão perdendo faturamento?", alguém precisava exportar planilhas e cruzar tudo à mão.
+
+<Todo>Quanto tempo levava uma análise dessas antes do projeto? Quem pedia (gestor, comercial)?</Todo>
+
+## Solução
+
+Um analista de dados com IA: a pessoa pergunta em português e o agente escolhe a tabela, escreve o SQL, confere os números e explica o resultado. Cada resposta mostra as consultas que a sustentam.
+
+```
+ERP legado (35 tabelas) --ingest.py--> DuckDB raw
+     raw --dbt--> staging --> core (dimensões e fatos) --> marts (faturamento, DRE 12m, sinais)
+                                                              |
+                          ferramentas somente leitura <-------+
+                             |                       |
+                 chat web (Claude API)       Claude Desktop (MCP)
+```
+
+1. **Ingestão:** o backup do ERP é copiado para o DuckDB e pode ser recarregado pelo próprio painel.
+2. **Modelagem com dbt:** 15 modelos em três camadas, com 15 testes de qualidade. As descrições de colunas escritas no dbt são as mesmas que o agente lê para entender as tabelas.
+3. **Ferramentas:** glossário de negócio, catálogo de tabelas, descrição de colunas, consulta SQL e busca no legado. As mesmas cinco funções atendem ao chat web e ao servidor MCP.
+4. **Agente:** laço de uso de ferramentas com a API do Claude, limitado a 12 consultas por pergunta. Se o limite chega, ele responde com o que já coletou e diz o que faltou.
+
+<Video
+  src="/projetos/warehouse-mcp/v2-pergunta-e-sql.mp4"
+  poster="/projetos/warehouse-mcp/v2-pergunta-e-sql.jpg"
+  legenda="Pergunta direta: o agente consulta o catálogo, confere as colunas e mostra o SQL que usou"
+/>
+
+## Comportamento de analista, não de chatbot
+
+- **Pede esclarecimento:** "quais clientes estão indo mal?" tem várias leituras. Em vez de escolher uma, o agente oferece opções (queda de faturamento, margem negativa, folha pesada).
+- **Lembra a conversa:** "e qual delas tem mais funcionários?" funciona porque as últimas 20 mensagens ficam no contexto.
+- **Conhece o próprio escopo:** perguntas sem relação com os dados recebem uma frase explicando o que ele sabe responder, sem gastar consultas.
+
+<Video
+  src="/projetos/warehouse-mcp/v2-esclarecimento.mp4"
+  poster="/projetos/warehouse-mcp/v2-esclarecimento.jpg"
+  legenda="Pergunta ambígua: o agente oferece opções e responde à escolhida"
+/>
+
+<Video
+  src="/projetos/warehouse-mcp/v2-memoria.mp4"
+  poster="/projetos/warehouse-mcp/v2-memoria.jpg"
+  legenda="Pergunta de continuação: o agente lembra a lista anterior"
+/>
+
+## Segurança
+
+- O DuckDB abre em modo somente leitura e com acesso a arquivos desligado. Mesmo um SQL malicioso não consegue alterar o banco nem ler o disco.
+- Só um `SELECT` por chamada, com até 200 linhas por resultado.
+- A chave da API fica fora do código, em variável de ambiente ou arquivo ignorado pelo git.
+
+## Custo e desempenho
+
+Medido na gravação acima, com Claude Opus 5.5:
+
+| Tipo de pergunta | Consultas | Tempo | Custo |
+|---|---|---|---|
+| Ranking com SQL | 4 | 13 s | US$ 0,04 |
+| Pedido de esclarecimento | 0 | 3 s | US$ 0,008 |
+| Análise de 12 empresas | 3 | 15 s | US$ 0,04 |
+| Fora do escopo | 0 | 4 s | US$ 0,007 |
+
+O painel registra tokens e custo de cada pergunta e mostra o gasto por dia e por modelo. O prompt e a definição das ferramentas ficam em cache, então a maior parte da entrada é cobrada a 5% do preço.
+
+## Primeira versão da interface
+
+Os mesmos recursos na interface anterior, antes da revisão visual que tirou gradientes, brilhos e enfeites para deixar o foco nos dados.
+
+<Video
+  src="/projetos/warehouse-mcp/sagaz-completo.mp4"
+  poster="/projetos/warehouse-mcp/sagaz-completo.jpg"
+  legenda="Primeira versão: demonstração completa (2 min)"
+/>
+
+<Video
+  src="/projetos/warehouse-mcp/pergunta-e-sql.mp4"
+  poster="/projetos/warehouse-mcp/pergunta-e-sql.jpg"
+  legenda="Primeira versão: pergunta direta com o SQL gerado"
+/>
+
+<Video
+  src="/projetos/warehouse-mcp/esclarecimento.mp4"
+  poster="/projetos/warehouse-mcp/esclarecimento.jpg"
+  legenda="Primeira versão: pedido de esclarecimento"
+/>
+
+<Video
+  src="/projetos/warehouse-mcp/memoria.mp4"
+  poster="/projetos/warehouse-mcp/memoria.jpg"
+  legenda="Primeira versão: pergunta de continuação"
+/>
+
+<Pendente titulo="Resultado">No projeto original: quanto tempo uma análise passou a levar, quantas pessoas usam, que decisões saíram dele.</Pendente>
+
+<Pendente titulo="O que aprendi">2–3 frases na sua voz: modelagem dimensional, desenhar ferramentas para um LLM usar (descrições, limites, erros que ele consegue corrigir) e por que o agente pergunta antes de chutar.</Pendente>

@@ -1,0 +1,20 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Tag from './Tag.astro';
+interface Props { projeto: CollectionEntry<'projetos'> }
+const { projeto } = Astro.props;
+const d = projeto.data;
+---
+<a href={`/projetos/${projeto.id}`} class="group block overflow-hidden rounded-xl border border-zinc-200 transition hover:border-accent/60 hover:shadow-lg dark:border-zinc-800">
+  {d.capa ? (
+    <img src={d.capa} alt="" loading="lazy" class="aspect-video w-full object-cover" />
+  ) : import.meta.env.DEV ? (
+    <div class="grid aspect-video place-items-center bg-zinc-100 text-xs text-zinc-400 dark:bg-zinc-900">capa pendente</div>
+  ) : null}
+  <div class="space-y-2 p-4">
+    <p class="text-xs uppercase tracking-wide text-zinc-500">{d.contexto}</p>
+    <h3 class="font-semibold group-hover:text-accent">{d.titulo}</h3>
+    <p class="text-sm text-zinc-600 dark:text-zinc-400">{d.resumo}</p>
+    <div class="flex flex-wrap gap-1.5 pt-1">{d.stack.slice(0, 4).map((s) => <Tag>{s}</Tag>)}</div>
+  </div>
+</a>

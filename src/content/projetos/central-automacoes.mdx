@@ -1,0 +1,165 @@
+---
+titulo: 'Nexo: central de automações com login único'
+resumo: 'Um só ponto de entrada para as automações do escritório: login por pessoa, permissão por automação, auditoria de cada acesso e cada automação isolada no próprio container.'
+contexto: 'Estágio — Virtus Consultoria'
+periodo: '2026'
+papel: 'Arquitetura, hub, deploy e a maior parte das automações'
+stack: ['Node.js', 'Express', 'PostgreSQL', 'Docker', 'Python', 'Flask', 'Traefik']
+destaque: true
+ordem: 2
+codigo: 'privado'
+capa: '/projetos/central-automacoes/v3-capa.jpg'
+links:
+  video: '/projetos/central-automacoes/v3-nexo-completo.mp4'
+---
+import Todo from '../../components/Todo.astro';
+import Pendente from '../../components/Pendente.astro';
+import Video from '../../components/Video.astro';
+
+<Video
+  src="/projetos/central-automacoes/v3-nexo-completo.mp4"
+  poster="/projetos/central-automacoes/v3-nexo-completo.jpg"
+  legenda="Demonstração completa (75 s): login, as 5 automações, conciliação, painel da equipe, acesso negado, liberação pela administração e mapa de salas"
+/>
+
+> **Sobre esta demonstração.** A central original roda em produção com as automações e os dados dos clientes do escritório. Para mostrar o trabalho sem expor nada disso, reconstruí do zero a mesma arquitetura com cinco automações de exemplo e dados **100% fictícios**. Duas delas têm página própria: o [robô de extração](/projetos/robos-financeiros) e o [emissor de NFS-e](/projetos/emissor-nfse).
+
+## Problema
+
+Cada automação rodava de um jeito: script na máquina de alguém, servidor avulso, credenciais espalhadas em arquivos. Não havia como saber quem usava o quê, nem tirar o acesso de alguém sem mexer em cada sistema.
+
+<Todo>Confirmar o cenário anterior com detalhes reais (quantas automações, quantas pessoas, como era o acesso).</Todo>
+
+## Solução
+
+Um **hub** é o único serviço exposto. Ele faz o login, confere se a pessoa pode usar aquela automação e repassa a requisição para o container dela, que fica numa rede interna sem porta publicada.
+
+```
+Navegador ─► hub (login, sessão no PostgreSQL, permissões, auditoria)
+               └─ /app/<automação>/* ─► proxy ─► container na rede interna
+                    ├─ conciliação bancária  (Python · Flask)
+                    ├─ gestão à vista        (Node · Express · Chart.js)
+                    ├─ mapa de salas         (Node · Express)
+                    ├─ extração de vendas    (Node · Playwright) ─► portal da adquirente (fictício)
+                    └─ emissor de NFS-e      (Python · FastAPI)  ─► SEFIN e gateway (simulados)
+```
+
+As automações não têm login próprio. O hub informa quem é a pessoa por cabeçalho, e cada automação recusa qualquer requisição que não venha dele.
+
+<Video
+  src="/projetos/central-automacoes/v3-conciliacao.mp4"
+  poster="/projetos/central-automacoes/v3-conciliacao.jpg"
+  legenda="Conciliação bancária: cada crédito do extrato é cruzado com os títulos a receber, com o progresso transmitido ao vivo"
+/>
+
+## Segurança
+
+- **Senhas e sessão:** bcrypt, sessão guardada no PostgreSQL, cookie `httpOnly` e nova sessão a cada login, contra fixação de sessão.
+- **Força bruta:** limite de 10 tentativas de login a cada 15 minutos.
+- **CSRF:** formulários só aceitam envios vindos do próprio hub.
+- **Identidade:** o hub apaga qualquer cabeçalho de operador que venha do navegador antes de escrever o verdadeiro. O cookie do hub nunca chega às automações.
+- **Isolamento:** as automações ficam numa rede Docker interna, sem saída para a internet e sem porta acessível de fora. O hub também recusa conexões WebSocket, para que nenhuma conexão desse tipo contorne o login.
+- **Permissões na hora:** o hub relê as permissões a cada requisição. Tirar um acesso ou desativar uma pessoa vale imediatamente.
+
+<Video
+  src="/projetos/central-automacoes/v3-administracao.mp4"
+  poster="/projetos/central-automacoes/v3-administracao.jpg"
+  legenda="Administração: a tentativa negada aparece no registro e o acesso é liberado em um clique"
+/>
+
+## Execuções e agendamentos
+
+Toda execução de cada automação fica registrada no hub, com quem rodou, início, duração, situação e um resumo do resultado ("716 vendas lidas; R$ 80,25 acima do contrato", "9 emitidas, 1 rejeitada").
+
+- **Sem mudar as automações:** o hub já está no caminho de tudo. Ele lê o progresso (NDJSON) enquanto repassa a resposta e tira dali o resumo e a situação: sucesso, parcial ou falha.
+- **Falhas legíveis:** quando o portal da adquirente cai, o registro diz "Portal da adquirente fora do ar". O detalhe técnico fica no log do servidor.
+- **Agendamento:** a administração cria rotinas em dias e horário fixos ou a cada N minutos, pausa, exclui ou executa na hora. O agendador reserva cada horário com uma atualização atômica no banco, então cada rotina roda uma vez só, mesmo com mais de uma instância do hub.
+- **Nem tudo deve rodar sozinho:** o emissor de NFS-e não pode ser agendado. Emitir nota fiscal precisa de alguém conferindo, e a tela explica isso.
+
+<Video
+  src="/projetos/central-automacoes/execucoes-completo.mp4"
+  poster="/projetos/central-automacoes/execucoes-completo.jpg"
+  legenda="Painel de execuções (50 s): histórico real com sucesso, parcial e falha, execução na hora e um novo agendamento"
+/>
+
+<Video
+  src="/projetos/central-automacoes/execucoes-agora.mp4"
+  poster="/projetos/central-automacoes/execucoes-agora.jpg"
+  legenda="Executar agora: a execução aparece em andamento e o painel se atualiza sozinho até o resultado"
+/>
+
+<Video
+  src="/projetos/central-automacoes/execucoes-agendar.mp4"
+  poster="/projetos/central-automacoes/execucoes-agendar.jpg"
+  legenda="Novo agendamento às terças e quintas às 18:00 e pausa de uma rotina"
+/>
+
+## Em produção
+
+A versão original roda numa VPS atrás de Traefik e Cloudflare, com HTTPS automático, e reúne nove automações: extrações financeiras com Playwright e APIs, um emissor de NFS-e, painéis de gestão e ferramentas internas.
+
+<Video
+  src="/projetos/central-automacoes/v3-mapa-de-salas.mp4"
+  poster="/projetos/central-automacoes/v3-mapa-de-salas.jpg"
+  legenda="Mapa de salas: a automação já sabe quem é a pessoa, sem um segundo login"
+/>
+
+## Versão com 3 automações
+
+A mesma interface antes de o robô de extração e o emissor de NFS-e entrarem no hub.
+
+<Video
+  src="/projetos/central-automacoes/nexo-completo.mp4"
+  poster="/projetos/central-automacoes/nexo-completo.jpg"
+  legenda="Versão com 3 automações: demonstração completa (1 min)"
+/>
+
+<Video
+  src="/projetos/central-automacoes/conciliacao.mp4"
+  poster="/projetos/central-automacoes/conciliacao.jpg"
+  legenda="Versão com 3 automações: conciliação bancária"
+/>
+
+<Video
+  src="/projetos/central-automacoes/administracao.mp4"
+  poster="/projetos/central-automacoes/administracao.jpg"
+  legenda="Versão com 3 automações: administração e registro de acessos"
+/>
+
+<Video
+  src="/projetos/central-automacoes/mapa-de-salas.mp4"
+  poster="/projetos/central-automacoes/mapa-de-salas.jpg"
+  legenda="Versão com 3 automações: mapa de salas"
+/>
+
+## Primeira versão da interface
+
+Os mesmos fluxos na interface anterior, antes da revisão visual que tirou gradientes, brilhos, chips coloridos e textos de enfeite.
+
+<Video
+  src="/projetos/central-automacoes/v1-nexo-completo.mp4"
+  poster="/projetos/central-automacoes/v1-nexo-completo.jpg"
+  legenda="Primeira versão: demonstração completa (1 min)"
+/>
+
+<Video
+  src="/projetos/central-automacoes/v1-conciliacao.mp4"
+  poster="/projetos/central-automacoes/v1-conciliacao.jpg"
+  legenda="Primeira versão: conciliação bancária"
+/>
+
+<Video
+  src="/projetos/central-automacoes/v1-administracao.mp4"
+  poster="/projetos/central-automacoes/v1-administracao.jpg"
+  legenda="Primeira versão: administração e registro de acessos"
+/>
+
+<Video
+  src="/projetos/central-automacoes/v1-mapa-de-salas.mp4"
+  poster="/projetos/central-automacoes/v1-mapa-de-salas.jpg"
+  legenda="Primeira versão: mapa de salas"
+/>
+
+<Pendente titulo="Resultado">Quantas pessoas usam, quantas execuções por mês, horas economizadas.</Pendente>
+
+<Pendente titulo="O que aprendi">2–3 frases na sua voz: gateway e isolamento de serviços, por que a identidade vem do hub, o que mudou na operação.</Pendente>

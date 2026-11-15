@@ -1,0 +1,71 @@
+---
+titulo: 'Robô de extração com verificação em duas etapas'
+resumo: 'Um robô com Playwright entra no portal da adquirente, passa pela verificação em duas etapas, lê todas as vendas do período e encontra as taxas cobradas acima do contrato.'
+contexto: 'Estágio — Virtus Consultoria'
+periodo: '2026'
+papel: 'Desenvolvimento dos robôs'
+stack: ['Playwright', 'Node.js', 'Python', 'ExcelJS', 'pandas', 'Docker']
+ordem: 2.5
+destaque: true
+codigo: 'privado'
+capa: '/projetos/robos-financeiros/capa.jpg'
+links:
+  video: '/projetos/robos-financeiros/robo-completo.mp4'
+---
+import Todo from '../../components/Todo.astro';
+import Pendente from '../../components/Pendente.astro';
+import Video from '../../components/Video.astro';
+
+<Video
+  src="/projetos/robos-financeiros/robo-completo.mp4"
+  poster="/projetos/robos-financeiros/robo-completo.jpg"
+  legenda="Demonstração completa (40 s): o robô roda dentro do Nexo e mostra ao vivo o que o navegador está vendo"
+/>
+
+> **Sobre esta demonstração.** Os robôs originais acessam portais reais com credenciais e dados de clientes. Para mostrar o trabalho sem expor nada disso, criei também o portal: o **Recebix** é uma adquirente fictícia, com 716 vendas inventadas de uma "Loja Demo", e tem os mesmos obstáculos dos portais de verdade.
+
+## Problema
+
+Plataformas financeiras raramente oferecem API para tudo. Para conferir as vendas do mês, alguém entrava no portal, digitava o código do autenticador, fechava avisos, paginava a tabela e copiava os dados para uma planilha. Depois ainda conferia, venda por venda, se a taxa cobrada era a do contrato.
+
+<Todo>Quanto tempo isso levava por cliente e por mês nos robôs originais.</Todo>
+
+## O que o robô enfrenta
+
+O portal fictício foi construído para ser difícil de automatizar, como os reais:
+
+- **Login em duas etapas:** usuário e senha, depois um código de 6 dígitos que muda a cada 30 segundos (TOTP, o mesmo padrão dos aplicativos autenticadores). O robô gera o código a partir do segredo guardado no servidor e espera o próximo se o atual estiver a 3 s de expirar.
+- **Aviso que cobre a tela:** depois do login aparece um aviso de "novidades" por cima de tudo. O robô verifica se ele está visível e fecha antes de seguir.
+- **Tabela paginada com filtro:** 15 páginas de 50 vendas. O robô aplica o período e lê página por página até a última.
+
+<Video
+  src="/projetos/robos-financeiros/execucao.mp4"
+  poster="/projetos/robos-financeiros/execucao.jpg"
+  legenda="Execução: cada etapa com o tempo e a tela do navegador do robô, transmitidas ao vivo"
+/>
+
+## O que ele entrega
+
+Depois de ler tudo, o robô compara a taxa de cada venda aprovada com a taxa do contrato para aquela modalidade (débito, crédito à vista, parcelado e Pix). Na demonstração, encontrou **40 vendas cobradas acima do contrato, R$ 80,25 a mais**. A planilha sai com três abas: resumo por modalidade, vendas com taxa acima do contrato e todas as vendas.
+
+<Video
+  src="/projetos/robos-financeiros/resultado.mp4"
+  poster="/projetos/robos-financeiros/resultado.jpg"
+  legenda="Resultado: o título já diz quanto foi cobrado a mais, com o detalhe por modalidade e por venda"
+/>
+
+## Como foi construído
+
+- **Playwright** num container com a imagem oficial, que já traz o Chromium. O robô roda sem tela e envia uma captura a cada etapa.
+- **Progresso ao vivo:** a execução é transmitida em NDJSON, uma linha por evento (etapa, página lida, captura de tela, resultado).
+- **Credenciais fora da tela:** usuário, senha e segredo do autenticador ficam em variáveis de ambiente do servidor. Quem usa só escolhe o período.
+- **Uma execução por vez:** se outra pessoa já estiver rodando o robô, a nova tentativa recebe um aviso em vez de abrir um segundo navegador.
+- **Dentro do Nexo:** o robô é mais uma automação da [central](/projetos/central-automacoes), com o mesmo login, as mesmas permissões e o mesmo registro de acessos.
+
+## Os robôs originais
+
+No estágio, os robôs extraem dados de plataformas de gestão, de pagamentos, de construção civil e de seguradoras. Alguns têm verificação em duas etapas e outros têm downloads de relatório que ficam "em processamento". A saída vai para Excel ou direto para o Google Sheets.
+
+<Pendente titulo="Resultado">Horas economizadas por mês e quantos clientes cada robô atende.</Pendente>
+
+<Pendente titulo="O que aprendi">2–3 frases na sua voz: tornar um robô resiliente a portais que mudam, lidar com MFA sem expor segredos, mostrar ao usuário o que o robô está fazendo.</Pendente>

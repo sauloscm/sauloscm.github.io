@@ -1,0 +1,35 @@
+---
+titulo: 'Oluasin'
+resumo: 'App desktop colaborativo que funciona offline: chat, voz, páginas e tabelas no estilo Notion, sincronizando direto entre os PCs da equipe.'
+contexto: 'Produto próprio'
+periodo: '2026'
+papel: 'Projeto individual, com desenvolvimento assistido por IA'
+stack: ['Electron', 'React', 'TypeScript', 'SQLite', 'WebSocket']
+destaque: true
+ordem: 3
+codigo: 'privado'
+---
+import Todo from '../../components/Todo.astro';
+import Figura from '../../components/Figura.astro';
+
+## Problema
+
+Equipes pequenas usam Discord para conversar e Notion para documentar, e os dados ficam na nuvem de terceiros. A ideia era juntar as duas coisas num app em que **os dados ficam nos PCs da equipe**.
+
+## Solução
+
+- **Local-first:** cada PC tem seu banco SQLite. As mudanças viram operações que são sincronizadas entre os PCs via WebSocket, com resolução de conflitos (última escrita vence, por campo).
+- **Páginas e tabelas:** páginas aninhadas, tabelas com visões em lista, quadro (kanban) e calendário, importação do Notion e exportação CSV.
+- **Voz e tela:** chamadas e compartilhamento de tela.
+- **Git integrado:** commits, branches e PRs do GitHub dentro do app.
+- **Backup:** exportação automática para o Google Drive.
+
+<Figura legenda="Visão geral do app" />
+<Figura legenda="Tabela em visão de quadro" />
+
+## Qualidade
+
+- Suíte end-to-end com mais de 50 cenários, simulando vários PCs.
+- Atualização automática do app.
+
+<Todo>Decidir se o repositório vai ficar público. Se sim, preencher links.repo no topo do arquivo.</Todo>

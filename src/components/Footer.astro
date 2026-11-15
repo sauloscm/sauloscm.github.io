@@ -1,0 +1,13 @@
+---
+import { SITE } from '../site';
+---
+<footer class="border-t border-zinc-200 py-8 text-sm text-zinc-500 dark:border-zinc-800">
+  <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6">
+    <span>© {new Date().getFullYear()} {SITE.nome}</span>
+    <div class="flex gap-4">
+      <a class="hover:text-accent" href={`mailto:${SITE.email}`}>E-mail</a>
+      <a class="hover:text-accent" href={SITE.github}>GitHub</a>
+      {SITE.linkedin && <a class="hover:text-accent" href={SITE.linkedin}>LinkedIn</a>}
+    </div>
+  </div>
+</footer>

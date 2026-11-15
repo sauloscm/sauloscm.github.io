@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Todo from '../components/Todo.astro';
+import { SITE } from '../site';
+
+const trajetoria = [
+  { periodo: '2026 – hoje', titulo: 'Estagiário de Desenvolvimento e Automação', lugar: 'Virtus Consultoria' },
+  { periodo: '2025 – hoje', titulo: 'Pesquisador e Desenvolvedor, Saúde Digital (GT-09)', lugar: 'PET-Saúde UFPB / SUS-PB' },
+  { periodo: '2023 – hoje', titulo: 'Especialista em IA (freelance), treinamento de LLMs', lugar: 'Outlier' },
+  { periodo: '2026', titulo: 'Programa de Formação Profissional Trainee', lugar: 'Lighthouse' },
+  { periodo: 'até 2027', titulo: 'Bacharelado em Engenharia de Computação', lugar: 'UFPB' },
+];
+---
+<Base titulo="Sobre">
+  <h1 class="mb-6 text-3xl font-bold">Sobre</h1>
+  <div class="prose prose-zinc max-w-none dark:prose-invert">
+    <Todo>Escrever 2 parágrafos em primeira pessoa: como começou a programar, o que gosta de construir, o que busca agora.</Todo>
+    <p>{SITE.descricao}</p>
+  </div>
+
+  <h2 class="mb-4 mt-12 text-xl font-semibold">Trajetória</h2>
+  <ol class="space-y-4 border-l border-zinc-200 pl-6 dark:border-zinc-800">
+    {trajetoria.map((t) => (
+      <li class="relative">
+        <span class="absolute -left-[29px] top-1.5 size-2.5 rounded-full bg-accent" />
+        <p class="font-mono text-xs text-zinc-500">{t.periodo}</p>
+        <p class="font-medium">{t.titulo}</p>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">{t.lugar}</p>
+      </li>
+    ))}
+  </ol>
+
+  <h2 class="mb-4 mt-12 text-xl font-semibold">Contato</h2>
+  <p><a class="text-accent hover:underline" href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+</Base>
