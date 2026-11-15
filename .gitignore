@@ -5,3 +5,6 @@ dist/
 
 # Código das demos fica fora do repositório do site (só os vídeos vão em public/).
 demos/
+
+# Anotações pessoais de manutenção (ficam só no PC).
+NOTAS.md
