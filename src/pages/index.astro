@@ -13,7 +13,7 @@ const destaques = (await listarProjetos()).filter((p) => p.data.destaque);
     <p class="max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">{SITE.descricao}</p>
     <div class="flex flex-wrap gap-3 pt-2">
       <a href="/projetos" class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90">Ver projetos</a>
-      <a href={SITE.curriculo} class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:border-accent dark:border-zinc-700">Currículo (PDF)</a>
+      <a href={SITE.curriculo} class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:border-accent dark:border-zinc-700">Currículo</a>
       <a href={SITE.github} class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:border-accent dark:border-zinc-700">GitHub</a>
     </div>
   </section>

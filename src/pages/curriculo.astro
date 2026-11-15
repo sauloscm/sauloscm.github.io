@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+
+const experiencias = [
+  {
+    cargo: 'Estagiário em Desenvolvimento de Software e Automação',
+    lugar: 'Virtus Consultoria',
+    periodo: 'Jun 2026 – Presente',
+    local: 'João Pessoa, PB',
+    texto:
+      'Criei a central de automações da empresa: um portal com login por pessoa que dá acesso a mais de sete automações, cada uma no seu container, com permissões e registro de acessos. Desenvolvi robôs de extração e conciliação financeira com Playwright e APIs, um emissor de NFS-e no padrão nacional com XML assinado por certificado digital, e um agente com a API do Claude que responde perguntas de negócio sobre um data warehouse em DuckDB e dbt.',
+    links: [
+      { href: '/projetos/warehouse-mcp', label: 'Agente de dados' },
+      { href: '/projetos/central-automacoes', label: 'Central de automações' },
+      { href: '/projetos/robos-financeiros', label: 'Robô de extração' },
+      { href: '/projetos/emissor-nfse', label: 'Emissor de NFS-e' },
+    ],
+  },
+  {
+    cargo: 'Pesquisador e Desenvolvedor, Saúde Digital (GT-09)',
+    lugar: 'PET-Saúde UFPB / SUS-PB',
+    periodo: '2025 – Presente',
+    local: 'João Pessoa, PB',
+    texto:
+      'Participo, em equipe, de todo o ciclo de desenvolvimento do Neolis, sistema de triagem neonatal (Teste do Pezinho) para o SUS-PB. Fiz o portal dos pais, o onboarding com ambiente de treinamento e o reforço de segurança e de monitoramento, com Flask, PostgreSQL, Docker e testes no GitHub Actions.',
+    links: [{ href: '/projetos/neolis', label: 'Neolis' }],
+  },
+  {
+    cargo: 'Especialista em IA (freelance)',
+    lugar: 'Outlier',
+    periodo: '2023 – Presente',
+    local: 'Remoto',
+    texto: 'Crio prompts e avaliações de qualidade e segurança para o treinamento de modelos de linguagem.',
+    links: [],
+  },
+];
+
+const habilidades = [
+  ['IA', 'API do Claude, agentes com ferramentas, MCP, avaliação de LLMs, Claude Code'],
+  ['Linguagens', 'Python, JavaScript/TypeScript, SQL, C++'],
+  ['Back-end', 'FastAPI, Flask, Node.js/Express, APIs REST'],
+  ['Dados', 'pandas, DuckDB, dbt, PostgreSQL, SQLAlchemy'],
+  ['Automação', 'Playwright, integrações, web scraping'],
+  ['Infra', 'Docker/Compose, GitHub Actions, Traefik, pytest'],
+  ['Front-end', 'React, Tailwind, Electron'],
+];
+
+const formacao = [
+  { titulo: 'Bacharelado em Engenharia de Computação', lugar: 'Universidade Federal da Paraíba (UFPB)', periodo: 'Conclusão prevista em 2027' },
+  { titulo: 'Programa de Formação Profissional Trainee', lugar: 'Lighthouse', periodo: '2026' },
+  { titulo: 'Inglês, certificação C1', lugar: 'Fisk', periodo: '' },
+];
+---
+<Base titulo="Currículo" descricao={`Currículo de ${SITE.nome}: ${SITE.descricao}`}>
+  <header class="flex flex-col gap-6 border-b border-zinc-200 pb-8 sm:flex-row sm:items-center dark:border-zinc-800">
+    <img src="/foto.jpg" alt={`Foto de ${SITE.nome}`} width="112" height="112" class="size-28 shrink-0 rounded-full object-cover" />
+    <div class="space-y-2">
+      <h1 class="text-3xl font-bold tracking-tight">{SITE.nome}</h1>
+      <p class="text-zinc-600 dark:text-zinc-400">Estudante de Engenharia de Computação e estagiário de desenvolvimento</p>
+      <p class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <span class="text-zinc-500">{SITE.local}</span>
+        <a class="text-accent hover:underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        <a class="text-accent hover:underline" href={SITE.github}>GitHub</a>
+        {SITE.linkedin && <a class="text-accent hover:underline" href={SITE.linkedin}>LinkedIn</a>}
+        <a class="text-accent hover:underline" href={SITE.curriculoPdf} download>Baixar PDF</a>
+      </p>
+    </div>
+  </header>
+
+  <section class="mt-10">
+    <h2 class="mb-3 text-xl font-semibold">Resumo</h2>
+    <p class="leading-relaxed text-zinc-700 dark:text-zinc-300">
+      Estudante de Engenharia de Computação na UFPB e estagiário de desenvolvimento na Virtus Consultoria. Coloco em
+      produção automações, ferramentas internas e integrações com modelos de linguagem, do protótipo ao deploy. Desde 2023
+      trabalho com avaliação de LLMs, e uso IA no dia a dia de desenvolvimento.
+    </p>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="mb-4 text-xl font-semibold">Experiência</h2>
+    <div class="space-y-8">
+      {experiencias.map((x) => (
+        <article>
+          <h3 class="font-semibold">{x.cargo} <span class="font-normal text-zinc-500">— {x.lugar}</span></h3>
+          <p class="mt-0.5 text-sm text-zinc-500">{x.periodo} · {x.local}</p>
+          <p class="mt-2 leading-relaxed text-zinc-700 dark:text-zinc-300">{x.texto}</p>
+          {x.links.length > 0 && (
+            <p class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm">
+              <span class="text-zinc-500">Ver:</span>
+              {x.links.map((l) => <a class="text-accent hover:underline" href={l.href}>{l.label}</a>)}
+            </p>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="mb-4 text-xl font-semibold">Projeto próprio</h2>
+    <article>
+      <h3 class="font-semibold">Oluasin <span class="font-normal text-zinc-500">— app desktop local-first</span></h3>
+      <p class="mt-0.5 text-sm text-zinc-500">2026 · em piloto com colegas</p>
+      <p class="mt-2 leading-relaxed text-zinc-700 dark:text-zinc-300">
+        Criei, sozinho e com desenvolvimento assistido por IA, um app em que os dados da equipe ficam nos próprios PCs e
+        sincronizam direto entre eles, inclusive offline. Tem chat, voz e tela compartilhada, páginas com importação do Notion,
+        kanban, calendário e planilha com fórmulas em português, além de licenças e atualização automática assinadas.
+      </p>
+      <p class="mt-2 text-sm"><span class="text-zinc-500">Ver:</span> <a class="text-accent hover:underline" href="/projetos/oluasin">Oluasin</a></p>
+    </article>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="mb-4 text-xl font-semibold">Formação</h2>
+    <ul class="space-y-3">
+      {formacao.map((f) => (
+        <li>
+          <p class="font-medium">{f.titulo}</p>
+          <p class="text-sm text-zinc-500">{f.lugar}{f.periodo && ` · ${f.periodo}`}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="mb-4 text-xl font-semibold">Habilidades</h2>
+    <dl class="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-[8rem_1fr]">
+      {habilidades.map(([area, itens]) => (
+        <>
+          <dt class="font-medium text-zinc-500">{area}</dt>
+          <dd class="text-zinc-700 dark:text-zinc-300">{itens}</dd>
+        </>
+      ))}
+    </dl>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="mb-3 text-xl font-semibold">Idiomas</h2>
+    <p class="text-sm text-zinc-700 dark:text-zinc-300">Português (nativo) · Inglês (C1)</p>
+  </section>
+</Base>

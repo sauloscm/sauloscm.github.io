@@ -9,5 +9,6 @@ export const SITE = {
   email: 'saulocm1@gmail.com',
   github: 'https://github.com/sauloscm',
   linkedin: '', // TODO: colar URL do LinkedIn
-  curriculo: '/curriculo.pdf',
+  curriculo: '/curriculo',
+  curriculoPdf: '/curriculo.pdf',
 };

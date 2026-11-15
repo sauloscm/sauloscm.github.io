@@ -1,35 +1,92 @@
 ---
-titulo: 'Oluasin'
-resumo: 'App desktop colaborativo que funciona offline: chat, voz, páginas e tabelas no estilo Notion, sincronizando direto entre os PCs da equipe.'
+titulo: 'Oluasin: equipe conectada sem entregar os dados a ninguém'
+resumo: 'App desktop local-first com chat, voz, compartilhamento de tela, páginas, kanban, calendário e planilha. Os dados ficam nos PCs da equipe e sincronizam direto entre eles, inclusive offline.'
 contexto: 'Produto próprio'
 periodo: '2026'
 papel: 'Projeto individual, com desenvolvimento assistido por IA'
-stack: ['Electron', 'React', 'TypeScript', 'SQLite', 'WebSocket']
+stack: ['Electron', 'React', 'TypeScript', 'SQLite', 'WebRTC', 'Rust/WebAssembly', 'Cloudflare Workers']
 destaque: true
 ordem: 3
 codigo: 'privado'
+capa: '/projetos/oluasin/capa.jpg'
+links:
+  video: '/projetos/oluasin/oluasin-completo.mp4'
 ---
 import Todo from '../../components/Todo.astro';
-import Figura from '../../components/Figura.astro';
+import Pendente from '../../components/Pendente.astro';
+import Video from '../../components/Video.astro';
 
-## Problema
+<Video
+  src="/projetos/oluasin/oluasin-completo.mp4"
+  poster="/projetos/oluasin/oluasin-completo.jpg"
+  legenda="Demonstração completa (3 min): dois PCs lado a lado, do convite ao trabalho offline"
+/>
 
-Equipes pequenas usam Discord para conversar e Notion para documentar, e os dados ficam na nuvem de terceiros. A ideia era juntar as duas coisas num app em que **os dados ficam nos PCs da equipe**.
+> **Sobre esta demonstração.** São dois perfis isolados do app, a Ana e o Bruno, rodando como se fossem dois PCs. A equipe, as mensagens, os documentos e o relatório compartilhado na chamada são fictícios.
 
-## Solução
+## De onde veio
 
-- **Local-first:** cada PC tem seu banco SQLite. As mudanças viram operações que são sincronizadas entre os PCs via WebSocket, com resolução de conflitos (última escrita vence, por campo).
-- **Páginas e tabelas:** páginas aninhadas, tabelas com visões em lista, quadro (kanban) e calendário, importação do Notion e exportação CSV.
-- **Voz e tela:** chamadas e compartilhamento de tela.
-- **Git integrado:** commits, branches e PRs do GitHub dentro do app.
-- **Backup:** exportação automática para o Google Drive.
+Começou como um espaço para o meu grupo conversar, jogar junto e transmitir a tela **sem entregar as conversas e os arquivos a um serviço de terceiros**. A regra desde o início: os dados ficam nos computadores de quem usa.
 
-<Figura legenda="Visão geral do app" />
-<Figura legenda="Tabela em visão de quadro" />
+Com o tempo, o grupo passou a usar o app também para trabalhar. Aí vieram as necessidades de equipe:
+- páginas e tabelas, com importação do Notion;
+- quadro kanban;
+- calendário integrado ao Google Agenda;
+- planilha com fórmulas em português;
+- cargos e permissões, licenças e atualização automática.
+
+Hoje está em piloto com colegas, usado como ferramenta de trabalho.
+
+## Como funciona por dentro
+
+- **Local-first:** cada PC tem o próprio banco SQLite e trabalha sem internet. Toda mudança vira uma operação que é enviada aos outros PCs pela rede. Quando duas pessoas mexem no mesmo lugar, vale a última escrita, campo a campo, então edições em campos diferentes nunca se perdem.
+- **PC sempre ligado:** um dos computadores faz o papel de servidor da equipe. Se ele desliga, todos continuam lendo e escrevendo na cópia local, e tudo se acerta quando ele volta. Também é possível sincronizar por uma pasta do Google Drive, como reserva.
+- **Voz e tela:** chamadas e compartilhamento de tela vão direto entre os computadores, cifrados pelo WebRTC. O servidor só ajuda a combinar a conexão.
+- **Planilha:** o motor de fórmulas é escrito em Rust e compilado para WebAssembly, a partir de um projeto open-source. A ele acrescentei os nomes das funções em português (`SOMA`, `SE`, `PROCV`) e a sincronização célula a célula entre os PCs.
+
+<Video
+  src="/projetos/oluasin/offline.mp4"
+  poster="/projetos/oluasin/offline.jpg"
+  legenda="Local-first: o PC da Ana desliga, o Bruno continua lendo e escrevendo, e quando ela volta recebe tudo"
+/>
+
+## O que a equipe usa no dia a dia
+
+<Video
+  src="/projetos/oluasin/paginas.mp4"
+  poster="/projetos/oluasin/paginas.jpg"
+  legenda="Páginas: a exportação do Notion vira páginas, subpáginas e tabelas; a edição da Ana aparece ao vivo para o Bruno"
+/>
+
+<Video
+  src="/projetos/oluasin/kanban.mp4"
+  poster="/projetos/oluasin/kanban.jpg"
+  legenda="Kanban: o cartão muda de coluna e abre com status, responsável, etiquetas e anotações, para os dois"
+/>
+
+<Video
+  src="/projetos/oluasin/planilha.mp4"
+  poster="/projetos/oluasin/planilha.jpg"
+  legenda="Planilha: fórmulas em português, e o total recalcula para o Bruno quando a Ana muda um valor"
+/>
+
+<Video
+  src="/projetos/oluasin/chamada.mp4"
+  poster="/projetos/oluasin/chamada.jpg"
+  legenda="Chamada de voz com tela compartilhada, direto entre os dois computadores"
+/>
+
+## Produto, não só protótipo
+
+- **Licenças:** um serviço próprio em Cloudflare Workers emite as licenças, assinadas digitalmente. Sem licença válida, o servidor continua legível, mas fica somente leitura. Nada se perde.
+- **Atualização automática:** as versões são assinadas no meu computador antes de subir, e o app recusa qualquer atualização com assinatura inválida. Cada versão vai primeiro para máquinas de teste e só depois para todos.
+- **Privacidade no painel:** o sinal que cada PC manda ao painel de controle leva só identificadores, versão, sistema, país e licença. Nenhum nome e nenhum conteúdo.
+- **Integrações:** Google Agenda, backup e sincronização por pasta do Google Drive, e controle Git com GitHub dentro do app.
 
 ## Qualidade
 
-- Suíte end-to-end com mais de 50 cenários, simulando vários PCs.
-- Atualização automática do app.
+O app tem uma **suíte de testes de ponta a ponta com mais de 60 etapas**. Ela abre vários perfis do app de verdade, como PCs diferentes, e confere convite, chat, páginas, planilha, voz, tela, trabalho offline, licenças e o que vai para o painel. Os serviços externos (GitHub, licenças, Google Drive) são simulados. Esta demonstração foi gravada com essa mesma estrutura.
 
-<Todo>Decidir se o repositório vai ficar público. Se sim, preencher links.repo no topo do arquivo.</Todo>
+<Pendente titulo="Resultado">Quantas pessoas usam no piloto, desde quando, e o que mudou na rotina delas.</Pendente>
+
+<Pendente titulo="O que aprendi">2–3 frases na sua voz: sincronização local-first e conflitos, voz e tela P2P, levar um projeto pessoal a produto (licença, atualização assinada, testes).</Pendente>
