@@ -15,6 +15,7 @@ links:
 import Todo from '../../components/Todo.astro';
 import Pendente from '../../components/Pendente.astro';
 import Video from '../../components/Video.astro';
+import Figura from '../../components/Figura.astro';
 
 <Video
   src="/projetos/oluasin/oluasin-completo.mp4"
@@ -83,10 +84,20 @@ Hoje está em piloto com colegas, usado como ferramenta de trabalho.
 Montei um serviço de licenças com painel de administração, em Cloudflare Workers com banco D1. Por ele, administro quem usa o Oluasin sem nunca ter acesso ao que as equipes fazem:
 
 - **O que eu controlo:** emito, renovo e revogo licenças, defino cotas por empresa parceira e decido quais versões do app cada máquina recebe. As versões vão primeiro para as máquinas de teste e só depois para todos.
-- **O que eu vejo:** cada PC com o app aberto manda um sinal a cada 15 minutos com um identificador aleatório da máquina, a versão do app, o sistema e o país. Para cada servidor, vão só o identificador, o papel daquele PC e a situação da licença.
-- **O que eu não vejo:** nenhum nome de pessoa ou servidor, nenhuma mensagem, página ou arquivo. **O IP também não é guardado:** o país vem da localização que a própria Cloudflare calcula na borda, e só ele vai para o banco.
+- **O que eu vejo:** cada PC com o app aberto manda um sinal a cada 15 minutos com um identificador aleatório da máquina, a versão do app, o sistema e o país. Para cada servidor, vão só o identificador, o papel daquele PC e a situação da licença. Na ativação de uma licença, o servidor informa também o nome que a equipe deu a ele, para eu reconhecer a licença no painel.
+- **O que eu não vejo:** o app não manda os nomes das pessoas da equipe, nem mensagens, páginas ou arquivos. **O IP também não é guardado:** o país vem da localização que a própria Cloudflare calcula na borda, e só ele vai para o banco.
 - **Autonomia de cada equipe:** os dados ficam nos PCs dela, e o servidor de licenças nunca os recebe. A licença é um documento assinado com Ed25519, que o app confere sozinho, sem internet, com a chave pública embutida. A equipe continua trabalhando offline e, se a licença vencer, o servidor dela fica somente leitura, sem perder nada.
 - **Acesso ao painel:** protegido por um token de administração, conferido no servidor por comparação de hashes.
+
+<Figura
+  src="/projetos/oluasin/painel-licencas.jpg"
+  legenda="Painel de licenças (dados fictícios): cliente, empresa parceira, servidor ativado, PC sempre ligado, último contato e validade"
+/>
+
+<Figura
+  src="/projetos/oluasin/painel-maquinas.jpg"
+  legenda="Máquinas (dados fictícios): cada PC aparece por um identificador aleatório, com versão, sistema e país; a caixa Testes decide quem recebe as versões novas primeiro"
+/>
 
 ### Atualização e integrações
 
