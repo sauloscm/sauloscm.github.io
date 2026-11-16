@@ -4,7 +4,7 @@ resumo: 'App desktop local-first com chat, voz, compartilhamento de tela, págin
 contexto: 'Produto próprio'
 periodo: '2026'
 papel: 'Projeto individual, com desenvolvimento assistido por IA'
-stack: ['Electron', 'React', 'TypeScript', 'SQLite', 'WebRTC', 'Rust/WebAssembly', 'Cloudflare Workers']
+stack: ['Electron', 'React', 'TypeScript', 'SQLite', 'WebRTC', 'Rust/WebAssembly', 'Cloudflare Workers', 'D1']
 destaque: true
 ordem: 3
 codigo: 'privado'
@@ -78,9 +78,19 @@ Hoje está em piloto com colegas, usado como ferramenta de trabalho.
 
 ## Produto, não só protótipo
 
-- **Licenças:** um serviço próprio em Cloudflare Workers emite as licenças, assinadas digitalmente. Sem licença válida, o servidor continua legível, mas fica somente leitura. Nada se perde.
-- **Atualização automática:** as versões são assinadas no meu computador antes de subir, e o app recusa qualquer atualização com assinatura inválida. Cada versão vai primeiro para máquinas de teste e só depois para todos.
-- **Privacidade no painel:** o sinal que cada PC manda ao painel de controle leva só identificadores, versão, sistema, país e licença. Nenhum nome e nenhum conteúdo.
+### Controle central, dados de cada um
+
+Montei um serviço de licenças com painel de administração, em Cloudflare Workers com banco D1. Por ele, administro quem usa o Oluasin sem nunca ter acesso ao que as equipes fazem:
+
+- **O que eu controlo:** emito, renovo e revogo licenças, defino cotas por empresa parceira e decido quais versões do app cada máquina recebe. As versões vão primeiro para as máquinas de teste e só depois para todos.
+- **O que eu vejo:** cada PC com o app aberto manda um sinal a cada 15 minutos com um identificador aleatório da máquina, a versão do app, o sistema e o país. Para cada servidor, vão só o identificador, o papel daquele PC e a situação da licença.
+- **O que eu não vejo:** nenhum nome de pessoa ou servidor, nenhuma mensagem, página ou arquivo. **O IP também não é guardado:** o país vem da localização que a própria Cloudflare calcula na borda, e só ele vai para o banco.
+- **Autonomia de cada equipe:** os dados ficam nos PCs dela, e o servidor de licenças nunca os recebe. A licença é um documento assinado com Ed25519, que o app confere sozinho, sem internet, com a chave pública embutida. A equipe continua trabalhando offline e, se a licença vencer, o servidor dela fica somente leitura, sem perder nada.
+- **Acesso ao painel:** protegido por um token de administração, conferido no servidor por comparação de hashes.
+
+### Atualização e integrações
+
+- **Atualização automática:** as versões são assinadas no meu computador antes de subir, e o app recusa qualquer atualização com assinatura inválida.
 - **Integrações:** Google Agenda, backup e sincronização por pasta do Google Drive, e controle Git com GitHub dentro do app.
 
 ## Qualidade
