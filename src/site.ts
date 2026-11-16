@@ -8,7 +8,7 @@ export const SITE = {
   local: 'João Pessoa, PB',
   email: 'saulocm1@gmail.com',
   github: 'https://github.com/sauloscm',
-  linkedin: '', // TODO: colar URL do LinkedIn
+  linkedin: 'https://www.linkedin.com/in/saulo-costa-ma',
   curriculo: '/curriculo',
   curriculoPdf: '/curriculo.pdf',
 };
